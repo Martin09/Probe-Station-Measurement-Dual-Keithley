@@ -17,7 +17,7 @@ delay_SP=10E-3
 N_ppSP = 1
 delay_trig=1E-3
 Verbose = True
-zeroCheck = False
+zeroCheck = True
 displayOff = False
 
 setpoints = [1,2,3,4,5]
@@ -32,6 +32,7 @@ keithley=Keithley(address="GPIB::%d"%Address,
                   VsRange=VsRange,
                   IsRange=IsRange,
                   ImRange=ImRange,
+                  setpoints=setpoints,
                   delay_SP=delay_SP,
                   N_ppSP=N_ppSP,
                   delay_trig=delay_trig,
@@ -41,7 +42,7 @@ keithley=Keithley(address="GPIB::%d"%Address,
                   logfunc=outToScr)
 
 keithley.initialize()
-data = keithley.start(setpoints)
+data = keithley.start()
 keithley.close()
 print data
-print data.mean(0)
+#print data.mean(0)

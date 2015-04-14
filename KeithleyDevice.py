@@ -11,14 +11,14 @@ from time import sleep,time
 import socket
 import struct
 
-testing = True
+testing = False
 
 class EmptyClass:
     pass
 
 class Keithley(object):
     def __init__(self,address,
-                 timeout=100.,
+                 timeout=100,
                  NPLC=1,
                  VsRange=10,
                  IsRange=2.5E-5,
@@ -104,13 +104,14 @@ class Keithley(object):
             self.write("SYST:ZCH ON") #Turn on zero checking
             self.setImRange(2E-9) #Select the 2nA range
             self.write("INIT") #Trigger reading to be used as zero
-            self.write("SYST:ZCOR:ACQ")
+            self.write("SYST:ZCOR:ACQ")  
             self.write("SYST:ZCOR ON")
             self.write("SYST:ZCH OFF")
+#            self.write("SYST:AZER OFF") #Turn on auto-zero                        
         else:
             self.write("SYST:ZCOR OFF")         
             self.write("SYST:ZCH OFF") #Turn off zero checking
-            self.write("AZER:STAT OFF") #Turn off auto-zero            
+#            self.write("SYST:AZER OFF") #Turn off auto-zero            
             
         self.setTrigDelay(self.__delay_trig__) #Set trigger delay
         self.setTrigCount(self.__N_ppSP__) #Set points per setpoint
@@ -131,7 +132,16 @@ class Keithley(object):
     def waitForFirstMeasurement(self):
         self.__instrument__.timeout=1000
         self.ask("READ?")
+#        print reply
         self.__instrument__.timeout=self.__timeout__        
+
+    def parseData(self,string):
+#        print string
+        dat = np.array([float(x) for x in string.split(',')])
+        dat = dat.reshape([-1,3])
+        dat[dat[:,0] == 9.9e37,0] = np.NaN #Overflow data = NaN
+        dat[dat[:,2] == -999,2] = np.NaN #Compliance data = NaN        
+        return dat
             
     def start(self,starttime=0,startcount=0):
         self.write("*CLS")
@@ -144,11 +154,14 @@ class Keithley(object):
         
     def close(self):
         self.abort()
-        self.write("DISP:ENAB ON")            
+#        self.write("*RST")
+        self.write("SOUR:VOLT:STAT OFF")
+        self.write("SYST:ZCH ON") #Turn on zero checking        
+        self.write("DISP:ENAB ON")
         
     def initialize(self):
         #Don't do this: sets back to Float
-        self.write("*RST")
+#        self.write("*RST")
         self.abort()
         self.configure()
         

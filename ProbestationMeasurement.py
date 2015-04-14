@@ -6,11 +6,13 @@ Created on Tue Mar 17 10:05:31 2015
 """
 #TODO: implement median and digital filtering
 #TODO: come up with a better data file format (include all the settings)
+#TODO: fix zerochecking
+#TODO: fix multiple points per setpoint bug
 
 # for command-line arguments
 import sys
 import os.path
-from time import sleep,time
+from time import sleep,time,strftime,gmtime
 import datetime
 from random import randint
 # Python Qt4 bindings for GUI objects
@@ -41,7 +43,7 @@ dict_markerstyle = {0:'.',1:'o',2:'+',3:'.',4:'1',5:'2',6:'3',7:'4',8:''}
 dict_linecolour = {0:'b',1:'g',2:'r',3:'c',4:'m',5:'y',6:'k',7:'w'}
 
 #Allows for the program to be run without a connected keithley (generates random dummy data)
-testing = True
+testing = False
 
 class MyWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -50,9 +52,9 @@ class MyWindow(QtGui.QMainWindow):
         
         self.setpoints_Vgs = None
         self.setpoints_Vds = None
-        self.tabledata = []
-        self.headers = ['Vgs','Vds','Ids','Resistance','Power','Time']
-        self.units = ['V','V','A','Ohms','W','s']
+        self.tabledata = np.array([]).reshape(0,4)
+        self.headers = ['Ids','t','Vgs','Vds','R','P']
+        self.units = ['A','s','V','V','Ohms','W']
         
         self.lastPlotUpdate = 0
         self.plotUpdatePeriod = 0.1 #Update plot no faster than once every 100ms
@@ -66,6 +68,7 @@ class MyWindow(QtGui.QMainWindow):
         
         #Connect signals from the GUI
         self.pbStartMeasure.clicked.connect(self.startMeasSlot)
+        self.pbCancelMeas.clicked.connect(self.abortMeas)
         self.pbLoadIV_Vgs.clicked.connect(self.loadIV_VgsSlot)
         self.pbLoadIV_Vds.clicked.connect(self.loadIV_VdsSlot)        
         self.cbXAxis.currentIndexChanged.connect(self.updatePlot)
@@ -78,9 +81,9 @@ class MyWindow(QtGui.QMainWindow):
         self.pbSaveDF.clicked.connect(self.saveDataFileSlot)
 
         #Add validators to the line edit inputs
-        NPLCValidator = QtGui.QDoubleValidator()
-        NPLCValidator.setRange(0.01,50)
-        self.leNPLC.setValidator(NPLCValidator)
+#        NPLCValidator = QtGui.QDoubleValidator()
+#        NPLCValidator.setRange(0,50)
+#        self.leNPLC.setValidator(NPLCValidator)
         
         pointsValidator = QtGui.QIntValidator()
         pointsValidator.setBottom(1)
@@ -96,7 +99,6 @@ class MyWindow(QtGui.QMainWindow):
             guirestore(self,QtCore.QSettings('startup.init', QtCore.QSettings.IniFormat))         
             self.setpoints_Vds = np.loadtxt(self.leIVFile_Vds.text(), comments="#", delimiter="\t", unpack=False)        
             self.setpoints_Vgs = np.loadtxt(self.leIVFile_Vgs.text(), comments="#", delimiter="\t", unpack=False)        
-
         except:
             pass
         
@@ -107,12 +109,17 @@ class MyWindow(QtGui.QMainWindow):
         self.cbYAxis.addItems(self.headers)          
                 
     def saveGUISlot(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Choose filename to save settings as', '.', filter='*.ini')        
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Choose filename to save settings as', self.leDataFile.text(), filter='*.ini;;*.*')        
         guisave(self,QtCore.QSettings(filename, QtCore.QSettings.IniFormat))
 
     def loadGUISlot(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Choose settings file to load', '.', filter='*.ini')                
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Choose settings file to load', self.leDataFile.text(), filter='*.ini;;*.*')                
         guirestore(self,QtCore.QSettings(filename, QtCore.QSettings.IniFormat)) 
+        self.setpoints_Vds = np.loadtxt(self.leIVFile_Vds.text(), comments="#", delimiter="\t", unpack=False)        
+        self.setpoints_Vgs = np.loadtxt(self.leIVFile_Vgs.text(), comments="#", delimiter="\t", unpack=False)        
+                
+    def abortMeas(self):
+        self.measThread.abort = True
                 
     def startMeasSlot(self):
 
@@ -130,15 +137,18 @@ class MyWindow(QtGui.QMainWindow):
                     self.finishedMeasurement()
                     return
             
-        self.Address = 12
-        self.timeout = 100  
+        self.Address = 22
+        self.timeout = 1000
         self.NPLC = float(self.leNPLC.text())
         self.IgsRange = 25e-6
         self.VgsRange = 50
         self.ImRange = dict_Im[self.cbCurrentRang.itemText(self.cbCurrentRang.currentIndex())]
         self.delay_init = 10 #TODO: Add this to GUI
         self.N_meas = 1
-        self.N_vgsSPs = len(self.setpoints_Vgs) 
+        self.N_vgsSPs = self.setpoints_Vgs.size
+        if self.setpoints_Vgs.size == 1:
+            self.setpoints_Vgs = self.setpoints_Vgs[np.newaxis]
+#        self.N_vgsSPs=1     #Debugging!   
         self.delay_SP = float(self.ledelay_SPs.text())/1000.
         self.N_ppSP = int(self.leNppSP.text())
         self.delay_trig = float(self.ledelay_trig.text())/1000.
@@ -162,17 +172,20 @@ class MyWindow(QtGui.QMainWindow):
                           zeroCheck=self.zeroCheck,
                           displayOff=self.displayOff,
                           logfunc=self.outToScr)
-        self.Address2 = 24
+        self.Address2 = 12
         self.VdsRange = dict_Vs[self.cbVoltRang.itemText(self.cbVoltRang.currentIndex())]
         self.IdsRange = dict_Is[self.cbCurrentLim.itemText(self.cbCurrentLim.currentIndex())]
-        self.N_vdsSPs=len(self.setpoints_Vds)         
-        
-        keithley_vds=Keithley(address="GPIB::%d"%self.Address,
+        self.N_vdsSPs=self.setpoints_Vds.size   
+        if self.setpoints_Vds.size == 1:
+            self.setpoints_Vds = self.setpoints_Vds[np.newaxis]        
+        keithley_vds=Keithley(address="GPIB::%d"%self.Address2,
+                          timeout=self.timeout,                              
                           VsRange=self.VdsRange,
                           IsRange=self.IdsRange,
                           delay_init=self.delay_init,
                           setpoints=self.setpoints_Vds,
                           N_SPs=self.N_vdsSPs,
+                          N_ppSP=self.N_ppSP,
                           verbose=self.verbose,
                           zeroCheck=self.zeroCheck,
                           displayOff=self.displayOff,
@@ -185,10 +198,26 @@ class MyWindow(QtGui.QMainWindow):
         self.tvData.setModel(tablemodel)
               
         self.measThread = MeasurementThread(keithley_vgs,keithley_vds,dataFilename)
+        self.connect(self.measThread, QtCore.SIGNAL("connectDevice"), self.connectDevice)
+        self.connect(self.measThread, QtCore.SIGNAL("disconnectDevice"), self.disconnectDevice)        
         self.connect(self.measThread, QtCore.SIGNAL("updateGUI"), self.updateThings)
         self.connect(self.measThread, QtCore.SIGNAL("measFinished"), self.finishedMeasurement)
         self.measThread.start()
-#        self.measThread.run()#For debugging      
+#        self.measThread.run()#For thread debugging      
+
+    def connectDevice(self):
+        connect_msg = "Measurement instruments initialized, please connect your device now."
+        reply = QtGui.QMessageBox.question(self, 'Connect Device', 
+             connect_msg, QtGui.QMessageBox.Ok,QtGui.QMessageBox.Cancel)
+        if reply == QtGui.QMessageBox.Ok:
+            self.measThread.deviceConnected = True
+        else:
+            self.measThread.abort = True
+            
+    def disconnectDevice(self):
+        connect_msg = "Measurement finished, please disconnect your device now."
+        QtGui.QMessageBox.question(self, 'Disconnect Device', connect_msg, QtGui.QMessageBox.Ok)
+        self.measThread.deviceConnected = False
 
     def updatePlot(self):
         if not(hasattr(self, 'measThread')): #Check if the measurement thread exists
@@ -235,23 +264,23 @@ class MyWindow(QtGui.QMainWindow):
             f.write('# Read Device 0 - KEITHLEY INSTRUMENTS INC.,MODEL 6487,1215030,A06   Jun 20 2006 15:08:40/A02  /C/G@GPIB0::22,  --\n')
             f.write('# Read Device 1 - KEITHLEY INSTRUMENTS INC.,MODEL 6487,1169708,A06   Jun 20 2006 15:08:40/A02  /C/F@GPIB0::12,  --\n')
             f.write('# Set Device 0 - KEITHLEY INSTRUMENTS INC.,MODEL 6487,1169708,A06   Jun 20 2006 15:08:40/A02  /C/F@GPIB0::12,  --\n')
-            f.write('Vgs	Vds	Is	t\n')
-            f.write('V	V	A	s\n')
-            f.write('K6487/K6517A	K6487/K6517A	K6487/K6517A	time\n')
+            f.write('Vgs	Vds	Is	t	R	P\n')
+            f.write('V	V	A	s	ohms	W\n')
+            f.write('K6487/K6517A	K6487/K6517A	K6487/K6517A	Time	Resistance	Power\n')
         
     #Output function for debugging keithley commands        
     def outToScr(self,message):
         print message        
 
     def loadIV_VgsSlot(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Choose IV file to load', '.', filter='*.iv')
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Choose IV file to load', directory = self.leIVFile_Vgs.text(), filter='*.iv;;*.*')
         if filename == "":
             return
         self.leIVFile_Vgs.setText(filename)
         self.setpoints_Vgs = np.loadtxt(filename, comments="#", delimiter="\t", unpack=False)
 
     def loadIV_VdsSlot(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Choose IV file to load', '.', filter='*.iv')
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Choose IV file to load', directory = self.leIVFile_Vds.text(), filter='*.iv;;*.*')
         if filename == "":
             return
         self.leIVFile_Vds.setText(filename)
@@ -259,7 +288,7 @@ class MyWindow(QtGui.QMainWindow):
         
         
     def saveDataFileSlot(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Choose filename to save data as', '.', filter='*.dat')
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Choose filename to save data as', directory = self.leDataFile.text(), filter='*.dat;;*.*')
         if filename == "":
             return
         self.leDataFile.setText(filename) 
@@ -279,6 +308,8 @@ class MyWindow(QtGui.QMainWindow):
         self.tvData.model().layoutChanged.emit()
         #Update data plot
         self.updatePlot()
+        self.progBar.setValue(int(np.round(self.measThread.progress*100)))
+        self.lblTimeRem.setText("Remaining Time: " + strftime('%H:%M:%S', gmtime(np.round(self.measThread.timeRemaining))))
 
 #Thread which performs the keithely measurements in the background, allowing the GUI to be used during the measurement
 class MeasurementThread(QtCore.QThread):
@@ -288,25 +319,55 @@ class MeasurementThread(QtCore.QThread):
         self.keithley1 = keithley1
         self.keithley2 = keithley2
         self.datFilename = datFilename
+        self.abort = False
         self.dat = []
+        self.progress = 0
+        self.timeRemaining = 0
+        self.deviceConnected = False
         
     def __del__(self):
+        self.keithley1.close()
+        self.keithley2.close()        
         self.wait()
  
     #Gets called when the thread starts
     def run(self):
+        #Initializes the devices
         self.keithley1.initialize()
         self.keithley2.initialize()
+        
+        #Waits for the specified initialization delay
         sleep(self.keithley1.__delay_init__/1000.)
+        
+        #Sets up the keithleys to get ready to measure
         self.keithley1.start()
         self.keithley2.start()
-        self.measure(self.keithley1,self.keithley2,self.datFilename)
+        
+        #Waits for user to connect the current nanowire        
+        self.emit(QtCore.SIGNAL("connectDevice"), "from measurement thread")        
+        self.deviceConnected = False
+        while(self.deviceConnected == False and self.abort == False):
+            sleep(0.1)   
+            
+        #If everything is fine, performs the measurement
+        if not(self.abort):
+            self.measure(self.keithley1,self.keithley2,self.datFilename)
+
+        #Waits for user to disconnect the device under test      
+        self.emit(QtCore.SIGNAL("disconnectDevice"), "from measurement thread")        
+        self.deviceConnected = True
+        while(self.deviceConnected == True):
+            sleep(0.1)               
+            
+        #Closes the keithleys at the end of the measurement
         self.keithley1.close()
         self.keithley2.close()
-        print "Done!"
+        self.emit(QtCore.SIGNAL("measFinished"), "from measurement thread")                        
 
     def measure(self,keithley1,keithley2,filename):
         self.dat = []
+        totalSPs = keithley1.__N_SPs__*keithley2.__N_SPs__
+        currSP=0
         with open(filename, 'a') as f:
             time_start = time()            
             for j in xrange(keithley2.__N_SPs__):
@@ -315,34 +376,35 @@ class MeasurementThread(QtCore.QThread):
                 if testing:
                     meas = [time(),randint(1,100),j]                   
                 else:
-                    meas=keithley2.parseData(readStr)
-                    if np.isnan(meas[2]):
-                        print "Warning: Keithley Compliance"                   
-                VdsSet = meas[2]            
+                    meas=keithley2.parseData(readStr)                 
+                VdsSet = meas[0,2]            
                 for i in xrange(keithley1.__N_SPs__):
                     keithley1.setVs(float(keithley1.__setpoints__[i]))    # Set the voltage source
                     sleep(keithley1.__delay_SP__)                         # Wait for the defined amount of time
                     readStr = keithley1.ask("READ?")                      # Measure the current
                     time_now = time()
+                    elapsedTime = time_now-time_start
                     if testing:
                         meas = [time(),randint(1,100),time()-time_start]                   
                     else:
                         meas=keithley1.parseData(readStr)
-                        meas[:,1] = time_now-time_start
-                        if np.isnan(np.array([meas]).T[0]).any():
-                            print "Warning: Keithley Overflow"
-                        if np.isnan(np.array([meas]).T[2]).any():
-                            print "Warning: Keithley Compliance"
-                    if isinstance(meas[0], list):
-                        meas = [line.extend([VdsSet]) for line in meas]
-                    else:
-                        meas.extend([VdsSet])
-                    self.dat.append(meas)
-                    self.emit(QtCore.SIGNAL("updateGUI"), "from measurement thread")                
-                    f.writelines( "%s\t" % item for item in meas)
+                        meas[:,1] = elapsedTime
+                    meas=np.hstack([meas,np.ones(meas.shape[0])[np.newaxis].T*VdsSet])
+                    meas=np.hstack([meas,(meas[:,3]/meas[:,0])[np.newaxis].T])                    
+                    meas=np.hstack([meas,(meas[:,3]*meas[:,0])[np.newaxis].T])
+                    self.dat.append(meas.tolist()[0])
+                    self.emit(QtCore.SIGNAL("updateGUI"), "from measurement thread") 
+                    save_meas = [meas[0][2],meas[0][3],meas[0][0],meas[0][1],meas[0][4],meas[0][5]]
+#                    print meas
+                    f.writelines( "%.6e\t" % item for item in save_meas)
+                    currSP += 1.
+                    self.progress=currSP/totalSPs
+                    self.timeRemaining = elapsedTime*(1/self.progress-1)
                     f.write('\n')
-        print "It took about %.2f ms per measurement"%((time_now-time_start)*1000./keithley1.__N_SPs__)
-        self.emit(QtCore.SIGNAL("measFinished"), "from measurement thread")                
+                    if self.abort:
+                        print "Measurement aborted successfully"
+                        return
+        print "It took about %.2f ms per measurement"%((time_now-time_start)*1000./keithley1.__N_SPs__/keithley2.__N_SPs__/keithley1.__N_ppSP__)
  
 #Table model for use with the QTableView class for displaying the measurement data       
 class MyTableModel(QtCore.QAbstractTableModel):
@@ -363,8 +425,12 @@ class MyTableModel(QtCore.QAbstractTableModel):
             return len(self.arraydata[0])
         return 0
         
-    def append(self,newLine):
-        self.arraydata.append(newLine)
+    def append(self,newLines):
+        if isinstance(newLines[0],list):
+            for line in newLines:
+                self.arraydata.append(line)
+        else:        
+            self.arraydata.append(newLines)
         
     def addRow(self, dat):
         self.insertRow(self.rowCount())
