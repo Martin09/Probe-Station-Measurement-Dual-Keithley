@@ -1,0 +1,20 @@
+[General]
+cbCurrentLim=25 uA
+cbCurrentRang=2 nA
+cbDisplayOff=0
+cbVerbose=2
+cbVoltRang=10 V
+cbZChk=0
+leDataFile=D:/Dropbox/LMSC/Programming/Probe Station Measurement - Dual Keithley/test.dat
+leIVFile=D:/Dropbox/LMSC/Programming/Probe Station Measurement/test.iv
+leNPLC=1
+leNppSP=1
+ledelay_SPs=10
+ledelay_trig=1
+cbLineStyle=Solid
+cbMarkerStyle=.
+cbPlotColour=blue
+cbXAxis=Vgs
+cbYAxis=Vgs
+leIVFile_Vds=D:/Dropbox/LMSC/Programming/Probe Station Measurement - Dual Keithley/test.iv
+leIVFile_Vgs=D:/Dropbox/LMSC/Programming/Probe Station Measurement - Dual Keithley/test.iv

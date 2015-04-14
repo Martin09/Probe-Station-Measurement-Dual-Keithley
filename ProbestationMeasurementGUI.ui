@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1028</width>
+    <height>878</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_5">
+    <item row="4" column="1" rowspan="3">
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="cbVerbose">
+         <property name="statusTip">
+          <string>Output keithley commands for debugging</string>
+         </property>
+         <property name="text">
+          <string>Verbose</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbZChk">
+         <property name="statusTip">
+          <string>Perform a zero check before starting the measurement</string>
+         </property>
+         <property name="text">
+          <string>Zero Check</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbDisplayOff">
+         <property name="statusTip">
+          <string>Turn off Keithley display during measurement</string>
+         </property>
+         <property name="text">
+          <string>Display Off</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="5" column="3">
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="toolTip">
+       <string comment="t" extracomment="testtesttest"/>
+      </property>
+      <property name="statusTip">
+       <string/>
+      </property>
+      <property name="title">
+       <string>Points per Setpoint</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="leNppSP">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Number of points to take for each setpoint</string>
+         </property>
+         <property name="whatsThis">
+          <string>fafgd</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">asdfa</string>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="ledelay_trig">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Delay between points within each setpoint</string>
+         </property>
+         <property name="whatsThis">
+          <string>fafgd</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">asdfa</string>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Number</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>leNppSP</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Delay (ms)</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>ledelay_trig</cstring>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Current Measurement</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Current Range</string>
+         </property>
+         <property name="buddy">
+          <cstring>cbCurrentRang</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="cbCurrentRang">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max current that can be read (and sunk) by current measurement&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Current measurement max current</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>2 nA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>20 nA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>200 nA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2 uA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>20 uA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>200 uA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2 mA</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QGroupBox" name="groupBox_7">
+      <property name="title">
+       <string>DataFile</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="leDataFile">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Number of setpoints</string>
+         </property>
+         <property name="whatsThis">
+          <string>fafgd</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">asdfa</string>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhUrlCharactersOnly</set>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbSaveDF">
+         <property name="text">
+          <string>Save As</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="4" column="0" rowspan="3">
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="toolTip">
+       <string comment="t" extracomment="testtesttest"/>
+      </property>
+      <property name="statusTip">
+       <string>Number of Power Line Cycles (0.01 - 50)</string>
+      </property>
+      <property name="title">
+       <string>Integration Time (NPLC)</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLineEdit" name="leNPLC">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
+         <property name="whatsThis">
+          <string/>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly</set>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Voltage Source</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="4" column="1">
+        <widget class="QComboBox" name="cbVoltRang">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max voltage output by voltage source&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Voltage source max voltage</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>10 V</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>50 V</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>500 V</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Voltage Range</string>
+         </property>
+         <property name="buddy">
+          <cstring>cbVoltRang</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QComboBox" name="cbCurrentLim">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max current output by voltage source&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Voltage source max current</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>25 uA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>250 uA</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2.5 mA</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Current Limit</string>
+         </property>
+         <property name="buddy">
+          <cstring>cbCurrentLim</cstring>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="title">
+       <string>Settings Files</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="pbSave">
+         <property name="text">
+          <string>Save As</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbLoad">
+         <property name="text">
+          <string>Load</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="5">
+     <widget class="QProgressBar" name="progBar">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="5">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tabTable">
+       <attribute name="title">
+        <string>Data Table</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QTableView" name="tvData">
+          <property name="statusTip">
+           <string>The data will be displayed here</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabPlot">
+       <attribute name="title">
+        <string>Plot</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QVBoxLayout" name="verticalPlotLayout">
+          <item>
+           <widget class="MatplotlibWidget" name="mplwidget"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QGroupBox" name="groupBox_9">
+            <property name="title">
+             <string>Axis Settings</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_7">
+             <item row="3" column="0">
+              <widget class="QComboBox" name="cbXAxis"/>
+             </item>
+             <item row="3" column="2">
+              <widget class="QComboBox" name="cbYAxis"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="lbYAxis">
+               <property name="text">
+                <string>YAxis</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="lbXAxis">
+               <property name="text">
+                <string>XAxis</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_8">
+            <property name="title">
+             <string>Plot Settings</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="1" column="0">
+              <widget class="QComboBox" name="cbLineStyle">
+               <item>
+                <property name="text">
+                 <string>Solid</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Dashes</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Line-Dot</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Dots</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>None</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="cbMarkerStyle">
+               <item>
+                <property name="text">
+                 <string>.</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>o</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>,</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>4</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>None</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Marker Style</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Colour</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QComboBox" name="cbPlotColour">
+               <item>
+                <property name="text">
+                 <string>blue</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>green</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>red</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>cyan</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>magenta</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>yellow</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>black</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>white</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>Line Style</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="5" column="4">
+     <widget class="QFrame" name="frame_2">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QPushButton" name="pbStartMeasure">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+           <stylestrategy>PreferAntialias</stylestrategy>
+          </font>
+         </property>
+         <property name="statusTip">
+          <string>Start the measurement!</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
+         <property name="text">
+          <string>Start Measurement</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="default">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbCancelMeas">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+           <stylestrategy>PreferAntialias</stylestrategy>
+          </font>
+         </property>
+         <property name="statusTip">
+          <string>Stop the measurement</string>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="2" rowspan="5">
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="toolTip">
+       <string comment="t" extracomment="testtesttest"/>
+      </property>
+      <property name="statusTip">
+       <string/>
+      </property>
+      <property name="title">
+       <string>Setpoints</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Vgs Setpoints</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>leIVFile_Vgs</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Delay (ms)</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>ledelay_SPs</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="leIVFile_Vgs">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Number of setpoints</string>
+         </property>
+         <property name="whatsThis">
+          <string>fafgd</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">asdfa</string>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhUrlCharactersOnly</set>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="pbLoadIV_Vgs">
+         <property name="text">
+          <string>Load IV File</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Vds Setpoints</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>leIVFile_Vgs</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLineEdit" name="leIVFile_Vds">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Number of setpoints</string>
+         </property>
+         <property name="whatsThis">
+          <string>fafgd</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">asdfa</string>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhUrlCharactersOnly</set>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QPushButton" name="pbLoadIV_Vds">
+         <property name="text">
+          <string>Load IV File</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLineEdit" name="ledelay_SPs">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string comment="boom" extracomment="testtest">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hellooo)tooltop=&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="statusTip">
+          <string>Delay between setting voltage and taking measurement</string>
+         </property>
+         <property name="whatsThis">
+          <string>fafgd</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">asdfa</string>
+         </property>
+         <property name="inputMethodHints">
+          <set>Qt::ImhDigitsOnly</set>
+         </property>
+         <property name="text">
+          <string>10</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1028</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MatplotlibWidget</class>
+   <extends>QWidget</extends>
+   <header>matplotlibwidget</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>cbCurrentLim</tabstop>
+  <tabstop>cbVoltRang</tabstop>
+  <tabstop>cbCurrentRang</tabstop>
+  <tabstop>leIVFile_Vgs</tabstop>
+  <tabstop>leNPLC</tabstop>
+  <tabstop>cbVerbose</tabstop>
+  <tabstop>cbZChk</tabstop>
+  <tabstop>cbDisplayOff</tabstop>
+  <tabstop>leNppSP</tabstop>
+  <tabstop>ledelay_trig</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pbStartMeasure</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pbCancelMeas</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>648</x>
+     <y>678</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>633</x>
+     <y>750</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbCancelMeas</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pbStartMeasure</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>671</x>
+     <y>750</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>729</x>
+     <y>678</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
