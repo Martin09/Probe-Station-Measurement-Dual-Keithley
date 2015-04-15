@@ -300,6 +300,7 @@ class MyWindow(QtGui.QMainWindow):
 
     def finishedMeasurement(self): #Gets called once the measurement thread finishes executing
         self.pbStartMeasure.setChecked(False)
+        self.pbCancelMeas.setEnabled(False)
         
     def updateThings(self): #Gets called from the measurement thread after every data point is collected
         #Update data table
@@ -310,6 +311,7 @@ class MyWindow(QtGui.QMainWindow):
         self.updatePlot()
         self.progBar.setValue(int(np.round(self.measThread.progress*100)))
         self.lblTimeRem.setText("Remaining Time: " + strftime('%H:%M:%S', gmtime(np.round(self.measThread.timeRemaining))))
+        self.pbCancelMeas.setEnabled(True)
 
 #Thread which performs the keithely measurements in the background, allowing the GUI to be used during the measurement
 class MeasurementThread(QtCore.QThread):
