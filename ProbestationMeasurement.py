@@ -9,6 +9,9 @@ Created on Tue Mar 17 10:05:31 2015
 #TODO: fix zerochecking
 #TODO: fix multiple points per setpoint bug
 
+progname = "MobilityMeasurement"
+progversion = "0.9"
+
 # for command-line arguments
 import sys
 import os.path
